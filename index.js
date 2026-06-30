@@ -1,8 +1,10 @@
+require("dotenv").config();
 // const { log } = require("console");
 const express = require("express");
 const app = express();
+const connectDB = require("./db")
+connectDB();
 app.use(express.json());
-
 
 const userRouter = require("./routes/user");
 const adminRouter = require("./routes/admin");
