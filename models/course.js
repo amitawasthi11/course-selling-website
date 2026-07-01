@@ -26,6 +26,8 @@ isPublished: {
     default: true
 }
 
+},{
+    timestamps : true
 })
 
 const Course = mongoose.model("Course", courseSchema);

@@ -2,11 +2,14 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const express = require("express");
 const router = express.Router();
+const courseSchema = require("../schemas/course")
+const Course = require("../models/course");
 const {
     signupSchema,
     signinSchema
 } = require("../schemas/admin");
 const Admin = require("../models/admin");
+const { safeParse } = require("../schemas/user");
 router.get("/",(req,res)=>{
     res.send("admin router")
 })
@@ -71,7 +74,7 @@ router.post("/signin",async(req,res)=>{
          }
          const token = jwt.sign(
          {
-             AdminId: loginAdmin._id
+             userId: loginAdmin._id
          },
          process.env.JWT_SECRET
          );      
@@ -82,6 +85,40 @@ router.post("/signin",async(req,res)=>{
     }catch{
         return res.status(500).json({
         message: "Internal Server Error"
+    });
+    }
+})
+
+// creating course 
+router.post("/create-course", adminAuth, async (req, res) => {
+
+});
+
+router.post("/create-course", authMiddleware,async(req,res)=>{
+    const result =  courseSchema.safeParse(req.body);
+    if(!result.success){
+    return res.status(400).json({
+    message: "Invalid input",
+    errors: result.error.issues
+});
+    }
+    const {title,description,price,image} = result.data;
+    try{
+      const course = await Course.create({
+    title,
+    description,
+    price,
+    image,
+    createdBy: req.adminId
+   });
+    return res.status(201).json({
+    message: "Course created successfully",
+    course
+     });
+
+    }catch(e){
+        return res.status(500).json({
+       message: e.message
     });
     }
 })

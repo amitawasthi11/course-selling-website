@@ -3,8 +3,8 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
-const signupSchema = require("../schemas/user");
-// const { error } = require("node:console");
+const Course = require("../models/course");
+const {signupSchema, signinSchema} = require("../schemas/admin");
 router.get("/",(req,res)=>{
     res.send("user router");
 })
@@ -58,7 +58,7 @@ router.post("/signup", async(req, res) => {
 
 });
 router.post("/signin",async(req,res)=>{
-    const result = signupSchema.safeParse(req.body);
+    const result = signinSchema.safeParse(req.body);
      if (!result.success) {
         return res.status(400).json({
             message: "Invalid input",
@@ -100,9 +100,17 @@ res.status(200).json({
 
 })
 
-router.get("/courses",(req,res)=>{
-
-
+router.get("/courses",async(req,res)=>{
+    try{
+const courses = await Course.find({
+    isPublished : true
+});
+return res.status(200).json(courses) 
+    }catch(e){
+      return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
 })
 
 router.post("/purchase",(req,res)=>{
