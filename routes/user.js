@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const Course = require("../models/course");
+const Purchase = require("../models/purchase");
+const userAuth = require("../middleware/userAuth");
 const {signupSchema, signinSchema} = require("../schemas/user");
 router.get("/",(req,res)=>{
     res.send("user router");
@@ -113,10 +115,42 @@ return res.status(200).json(courses)
     }
 })
 
-router.post("/purchase",(req,res)=>{
+router.post("/purchase/:courseId",userAuth,async(req,res)=>{
+try{
+    const {CourseId} = req.params;
+    const course = await Course.findById(CourseId);
+    if(!course){
+         return res.status(404).json({
+                message: "Course not found"
+            });
+    }
+     // Check if user already purchased this course
+        const existingPurchase = await Purchase.findOne({
+            userId: req.userId,
+            courseId: courseId
+        });
+     
+         if (existingPurchase) {
+            return res.status(409).json({
+                message: "Course already purchased"
+            });
+        }
+         await Purchase.create({
+            userId: req.userId,
+            courseId: courseId
+        });
+
+        return res.status(201).json({
+            message: "Course purchased successfully"
+        });
+}catch(e){
+ return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+   })
 
 
-})
 router.get("/purchases",(req,res)=>{
 
 })
