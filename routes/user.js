@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const Course = require("../models/course");
-const {signupSchema, signinSchema} = require("../schemas/admin");
+const {signupSchema, signinSchema} = require("../schemas/user");
 router.get("/",(req,res)=>{
     res.send("user router");
 })
